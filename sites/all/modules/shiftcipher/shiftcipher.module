@@ -1,0 +1,85 @@
+<?php
+
+function shiftcipher_menu() {
+    $items['shiftcipher'] = array(
+        'title' => 'Shift Cipher',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('shiftcipher_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM,
+    );
+    $items['shiftcipher_success_page'] = array(
+        'title' => 'Shift Cipher Results',
+        'page callback' => 'shiftcipher_success',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+
+function shiftcipher_form() {
+    $form['shift_value'] = array(
+        '#title' => 'Shift Value',
+        '#type' => 'textfield',
+        '#description' => t('How many places would you like to shift each letter?'),
+        '#required' => TRUE,
+    );
+    $form['direction'] = array(
+        '#title' => 'Direction',
+        '#type' => 'textfield',
+        '#description' => t('In which direction would you like to shift each letter (right or left)?'),
+        '#required' => TRUE,
+    );
+    $form['phrase'] = array(
+        '#title' => 'Phrase',
+        '#type' => 'textfield',
+        '#description' => t('Please enter the phrase to encrypt.'),
+        '#required' => TRUE,
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'What Would Mr. (Lou) Cipher Say?',
+    );
+    return $form;
+}
+
+function shiftcipher_phrase($input_phrase, $shift, $direction) {
+    $input_array = str_split($input_phrase);
+    $output_array = array();
+    foreach ($input_array as $input_letter) {
+      if (preg_match("/[a-zA-Z]/", $input_letter)) {
+          $output_array[] = shiftcipher_letter($input_letter, $shift, $direction);
+      } else {
+          $output_array[] = $input_letter;
+      }
+    }
+    return join("", $output_array);
+  }
+
+function shiftcipher_letter($input_letter, $shift, $direction) {
+    $alpha = " abcdefghijklmnopqrstuvwxyz";
+    $shift = fmod(($direction == "right" ? $shift : -$shift), 26);
+    $position_orig = stripos($alpha, strtolower($input_letter));
+    $position_new = $position_orig + $shift;
+    if ($position_new > 26) {
+        $position_new -= 26;
+    } elseif ($position_new < 1) {
+        $position_new += 26;
+    }
+    return $alpha[(int)$position_new];
+}
+
+function shiftcipher_form_submit($form, &$form_state) {
+
+    $shift_value = $form_state['values']['shift_value'];
+    $direction = $form_state['values']['direction'];
+    $phrase = $form_state['values']['phrase'];
+    $encrypted_phrase = shiftcipher_phrase($phrase, $shift_value, $direction);
+    $_SESSION['shiftcipher_output'] = $encrypted_phrase;
+    $form_state['redirect'] = 'shiftcipher_success_page';
+}
+
+function shiftcipher_success() {
+    $answer = $_SESSION['shiftcipher_output'];
+    return 'Mr. (Lou) Cipher says:<br>' . $answer;
+}

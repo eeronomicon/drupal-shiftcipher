@@ -10,8 +10,7 @@ Project Requirements: Create a custom module which encrypts user input using a S
 
 Present a custom form with 3 text inputs. We want you to use text inputs rather than radio buttons or menus so that you can practice validation.
 One input should be a shift value, one should be a direction, and the third should be the phrase to be encrypted.
-Then you should redirect to a second page to show the result - the encoded phrase. Here are a couple examples of input and output.
-
+Then you should redirect to a second page to show the result - the encoded phrase.
 * The shift value is the number of places to shift each letter over.
 * If the shift direction is "right" then you will add the shift value. For example: "a" with a shift value of 1 and a direction of right would become "b". A shift direction of "left" with a shift value of 1 would turn "b" into "a".
 * If the shift amount takes you over the bounds of the alphabet then cycle back to the beginning. For example: a shift value of 3 with the direction of right would turn "z" into "c".
