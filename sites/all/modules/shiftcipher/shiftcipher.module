@@ -44,7 +44,7 @@ function shiftcipher_form() {
         '#description' => t('How many places would you like to shift each letter?'),
         '#attributes' => array('placeholder' => t('An integer greater than zero')),
         '#required' => TRUE,
-        '#element_validate' => array('element_validate_integer_positive'),
+        '#element_validate' => array('element_validate_integer_positive','element_validate_shift_value'),
     );
     $form['direction'] = array(
         '#title' => 'Direction',
@@ -77,7 +77,7 @@ function shiftrandom_form() {
         '#attributes' => array('placeholder' => t('An integer greater than zero')),
         '#default_value' => rand(1,25),
         '#required' => TRUE,
-        '#element_validate' => array('element_validate_integer_positive'),
+        '#element_validate' => array('element_validate_integer_positive','element_validate_shift_value'),
     );
     $form['direction'] = array(
         '#title' => 'Direction',
@@ -122,7 +122,7 @@ function shiftdecipher_form() {
         '#attributes' => array('placeholder' => t('An integer greater than zero')),
         '#default_value' => isset($_SESSION['shiftcipher_shift_value']) ? $_SESSION['shiftcipher_shift_value'] : '',
         '#required' => TRUE,
-        '#element_validate' => array('element_validate_integer_positive'),
+        '#element_validate' => array('element_validate_integer_positive','element_validate_shift_value'),
     );
     $form['direction'] = array(
         '#title' => 'Original Direction',
@@ -146,6 +146,12 @@ function shiftdecipher_form() {
 function element_validate_direction($element) {
     if (!($element['#value'] == "left" || $element['#value'] == "right")) {
         form_error($element, t('The only valid Direction choices are "left" and "right".'));
+    }
+}
+
+function element_validate_shift_value($element) {
+    if ($element['#value'] % 26 == 0) {
+        form_error($element, t('The Shift Value cannot be a multiple of 26, as that will result in a zero shift!'));
     }
 }
 
