@@ -22,6 +22,7 @@ function shiftcipher_form() {
         '#title' => 'Shift Value',
         '#type' => 'textfield',
         '#description' => t('How many places would you like to shift each letter?'),
+        '#attributes' => array('placeholder' => t('An integer greater than zero')),
         '#required' => TRUE,
         '#element_validate' => array('element_validate_integer_positive'),
     );
@@ -29,6 +30,7 @@ function shiftcipher_form() {
         '#title' => 'Direction',
         '#type' => 'textfield',
         '#description' => t('In which direction would you like to shift each letter (right or left)?'),
+        '#attributes' => array('placeholder' => t('"Right" or "left" in all lowercase, without quotes')),
         '#required' => TRUE,
         '#element_validate' => array('element_validate_direction'),
     );
@@ -36,6 +38,7 @@ function shiftcipher_form() {
         '#title' => 'Phrase',
         '#type' => 'textfield',
         '#description' => t('Please enter the phrase to encrypt.'),
+        '#attributes' => array('placeholder' => t('Only letters, spaces, and punctuations accepted')),
         '#required' => TRUE,
         '#element_validate' => array('element_validate_phrase'),
     );
