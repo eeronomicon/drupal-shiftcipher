@@ -8,6 +8,13 @@ function shiftcipher_menu() {
         'access callback' => TRUE,
         'type' => MENU_NORMAL_ITEM,
     );
+    $items['shiftrandom'] = array(
+        'title' => 'Shift Random',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('shiftrandom_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM,
+    );
     $items['shiftcipher_success_page'] = array(
         'title' => 'Shift Cipher Results',
         'page callback' => 'shiftcipher_success',
@@ -54,6 +61,43 @@ function shiftcipher_form() {
         '#attributes' => array('placeholder' => t('Only letters, spaces, and punctuations accepted')),
         '#required' => TRUE,
         '#element_validate' => array('element_validate_phrase'),
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Encrypt Away, Mr. Cipher!',
+    );
+    return $form;
+}
+
+function shiftrandom_form() {
+    $form['shift_value'] = array(
+        '#title' => 'Shift Value',
+        '#type' => 'textfield',
+        '#description' => t('How many places would you like to shift each letter?'),
+        '#attributes' => array('placeholder' => t('An integer greater than zero')),
+        '#default_value' => rand(1,25),
+        '#required' => TRUE,
+        '#element_validate' => array('element_validate_integer_positive'),
+    );
+    $form['direction'] = array(
+        '#title' => 'Direction',
+        '#type' => 'textfield',
+        '#description' => t('In which direction would you like to shift each letter (right or left)?'),
+        '#attributes' => array('placeholder' => t('"Right" or "left" in all lowercase, without quotes')),
+        '#default_value' => rand(1,2) == 1 ? 'right' : 'left',
+        '#required' => TRUE,
+        '#element_validate' => array('element_validate_direction'),
+    );
+    $form['phrase'] = array(
+        '#title' => 'Phrase',
+        '#type' => 'textfield',
+        '#description' => t('Please enter the phrase to encrypt.'),
+        '#attributes' => array('placeholder' => t('Only letters, spaces, and punctuations accepted')),
+        '#required' => TRUE,
+        '#element_validate' => array('element_validate_phrase'),
+    );
+    $form['field_explanation'] = array(
+        '#markup' => '<p>Note: The Shift Value and Direction have been selected at random for you. Feel free to change them!</p>',
     );
     $form['submit'] = array(
         '#type' => 'submit',
@@ -138,7 +182,18 @@ function shiftcipher_letter($input_letter, $shift, $direction) {
 }
 
 function shiftcipher_form_submit($form, &$form_state) {
+    $shift_value = $form_state['values']['shift_value'];
+    $direction = $form_state['values']['direction'];
+    $phrase = $form_state['values']['phrase'];
+    $encrypted_phrase = shiftcipher_phrase($phrase, $shift_value, $direction);
+    $_SESSION['shiftcipher_shift_value'] = $shift_value;
+    $_SESSION['shiftcipher_direction'] = $direction;
+    $_SESSION['shiftcipher_phrase'] = $phrase;
+    $_SESSION['shiftcipher_output'] = $encrypted_phrase;
+    $form_state['redirect'] = 'shiftcipher_success_page';
+}
 
+function shiftrandom_form_submit($form, &$form_state) {
     $shift_value = $form_state['values']['shift_value'];
     $direction = $form_state['values']['direction'];
     $phrase = $form_state['values']['phrase'];
@@ -151,9 +206,8 @@ function shiftcipher_form_submit($form, &$form_state) {
 }
 
 function shiftdecipher_form_submit($form, &$form_state) {
-
     $shift_value = $form_state['values']['shift_value'];
-    $direction = -$form_state['values']['direction'] == 'right' ? 'left' : 'right';
+    $direction = $form_state['values']['direction'] == 'right' ? 'left' : 'right';
     $phrase = $form_state['values']['phrase'];
     $decrypted_phrase = shiftcipher_phrase($phrase, $shift_value, $direction);
     $_SESSION['shiftdecipher_shift_value'] = $shift_value;
