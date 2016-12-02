@@ -14,6 +14,19 @@ function shiftcipher_menu() {
         'access callback' => TRUE,
         'type' => MENU_CALLBACK,
     );
+    $items['shiftdecipher'] = array(
+        'title' => 'Shift De-Cipher',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('shiftdecipher_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM,
+    );
+    $items['shiftdecipher_success_page'] = array(
+        'title' => 'Shift De-Cipher Results',
+        'page callback' => 'shiftdecipher_success',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
     return $items;
 }
 
@@ -46,19 +59,49 @@ function shiftcipher_form() {
     );
     $form['submit'] = array(
         '#type' => 'submit',
-        '#value' => 'What Would Mr. (Lou) Cipher Say?',
+        '#value' => 'Encrypt Away, Mr. Cipher!',
     );
     return $form;
 }
 
-function shiftcipher_getdefault($variable_type) {
-  return $_SESSION['shiftcipher_shift_value'];
+function shiftdecipher_form() {
+    $form['phrase'] = array(
+        '#title' => 'Encrypted Phrase',
+        '#type' => 'textfield',
+        '#description' => t('Please enter the phrase to decrypt.'),
+        '#attributes' => array('placeholder' => t('Only letters, spaces, and punctuations accepted')),
+        '#required' => TRUE,
+        '#element_validate' => array('element_validate_phrase'),
+    );
+    $form['shift_value'] = array(
+        '#title' => 'Original Shift Value',
+        '#type' => 'textfield',
+        '#description' => t('How many places were the letters shifted?'),
+        '#attributes' => array('placeholder' => t('An integer greater than zero')),
+        '#default_value' => isset($_SESSION['shiftcipher_shift_value']) ? $_SESSION['shiftcipher_shift_value'] : '',
+        '#required' => TRUE,
+        '#element_validate' => array('element_validate_integer_positive'),
+    );
+    $form['direction'] = array(
+        '#title' => 'Original Direction',
+        '#type' => 'textfield',
+        '#description' => t('In which direction were the letters shifted?'),
+        '#default_value' => isset($_SESSION['shiftcipher_direction']) ? $_SESSION['shiftcipher_direction'] : '',
+        '#attributes' => array('placeholder' => t('"Right" or "left" in all lowercase, without quotes')),
+        '#required' => TRUE,
+        '#element_validate' => array('element_validate_direction'),
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Decrypt Away, Mr. Cipher!',
+    );
+    return $form;
 }
 
 function element_validate_direction($element) {
-  if (!($element['#value'] == "left" || $element['#value'] == "right")) {
+    if (!($element['#value'] == "left" || $element['#value'] == "right")) {
         form_error($element, t('The only valid Direction choices are "left" and "right".'));
-  }
+    }
 }
 
 function element_validate_phrase($element) {
@@ -71,11 +114,11 @@ function shiftcipher_phrase($input_phrase, $shift, $direction) {
     $input_array = str_split($input_phrase);
     $output_array = array();
     foreach ($input_array as $input_letter) {
-      if (preg_match("/[a-zA-Z]/", $input_letter)) {
-          $output_array[] = shiftcipher_letter($input_letter, $shift, $direction);
-      } else {
-          $output_array[] = $input_letter;
-      }
+        if (preg_match("/[a-zA-Z]/", $input_letter)) {
+            $output_array[] = shiftcipher_letter($input_letter, $shift, $direction);
+        } else {
+            $output_array[] = $input_letter;
+        }
     }
     return join("", $output_array);
   }
@@ -106,12 +149,36 @@ function shiftcipher_form_submit($form, &$form_state) {
     $form_state['redirect'] = 'shiftcipher_success_page';
 }
 
+function shiftdecipher_form_submit($form, &$form_state) {
+
+    $shift_value = $form_state['values']['shift_value'];
+    $direction = -$form_state['values']['direction'] == 'right' ? 'left' : 'right';
+    $phrase = $form_state['values']['phrase'];
+    $decrypted_phrase = shiftcipher_phrase($phrase, $shift_value, $direction);
+    $_SESSION['shiftdecipher_shift_value'] = $shift_value;
+    $_SESSION['shiftdecipher_direction'] = $direction;
+    $_SESSION['shiftdecipher_phrase'] = $phrase;
+    $_SESSION['shiftdecipher_output'] = $decrypted_phrase;
+    $form_state['redirect'] = 'shiftdecipher_success_page';
+}
+
 function shiftcipher_success() {
     $shift_value = $_SESSION['shiftcipher_shift_value'];
     $direction = $_SESSION['shiftcipher_direction'];
     $phrase = $_SESSION['shiftcipher_phrase'];
     $answer = $_SESSION['shiftcipher_output'];
     $display_result = 'Mr. (Lou) Cipher has encrypted your phrase, <br>';
+    $display_result .= '<strong>' . $phrase . '</strong><br> by shifting ' . $shift_value . ' to the ' . $direction . ' with the following result:<br>';
+    $display_result .= '<strong>' . $answer . '</strong>';
+    return $display_result;
+}
+
+function shiftdecipher_success() {
+    $shift_value = $_SESSION['shiftdecipher_shift_value'];
+    $direction = $_SESSION['shiftdecipher_direction'];
+    $phrase = $_SESSION['shiftdecipher_phrase'];
+    $answer = $_SESSION['shiftdecipher_output'];
+    $display_result = 'Mr. (Lou) Cipher has decrypted your phrase, <br>';
     $display_result .= '<strong>' . $phrase . '</strong><br> by shifting ' . $shift_value . ' to the ' . $direction . ' with the following result:<br>';
     $display_result .= '<strong>' . $answer . '</strong>';
     return $display_result;
