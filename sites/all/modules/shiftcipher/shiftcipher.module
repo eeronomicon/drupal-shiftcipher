@@ -23,6 +23,7 @@ function shiftcipher_form() {
         '#type' => 'textfield',
         '#description' => t('How many places would you like to shift each letter?'),
         '#attributes' => array('placeholder' => t('An integer greater than zero')),
+        '#default_value' => isset($_SESSION['shiftcipher_shift_value']) ? $_SESSION['shiftcipher_shift_value'] : '',
         '#required' => TRUE,
         '#element_validate' => array('element_validate_integer_positive'),
     );
@@ -30,6 +31,7 @@ function shiftcipher_form() {
         '#title' => 'Direction',
         '#type' => 'textfield',
         '#description' => t('In which direction would you like to shift each letter (right or left)?'),
+        '#default_value' => isset($_SESSION['shiftcipher_direction']) ? $_SESSION['shiftcipher_direction'] : '',
         '#attributes' => array('placeholder' => t('"Right" or "left" in all lowercase, without quotes')),
         '#required' => TRUE,
         '#element_validate' => array('element_validate_direction'),
@@ -47,6 +49,10 @@ function shiftcipher_form() {
         '#value' => 'What Would Mr. (Lou) Cipher Say?',
     );
     return $form;
+}
+
+function shiftcipher_getdefault($variable_type) {
+  return $_SESSION['shiftcipher_shift_value'];
 }
 
 function element_validate_direction($element) {
@@ -93,11 +99,20 @@ function shiftcipher_form_submit($form, &$form_state) {
     $direction = $form_state['values']['direction'];
     $phrase = $form_state['values']['phrase'];
     $encrypted_phrase = shiftcipher_phrase($phrase, $shift_value, $direction);
+    $_SESSION['shiftcipher_shift_value'] = $shift_value;
+    $_SESSION['shiftcipher_direction'] = $direction;
+    $_SESSION['shiftcipher_phrase'] = $phrase;
     $_SESSION['shiftcipher_output'] = $encrypted_phrase;
     $form_state['redirect'] = 'shiftcipher_success_page';
 }
 
 function shiftcipher_success() {
+    $shift_value = $_SESSION['shiftcipher_shift_value'];
+    $direction = $_SESSION['shiftcipher_direction'];
+    $phrase = $_SESSION['shiftcipher_phrase'];
     $answer = $_SESSION['shiftcipher_output'];
-    return 'Mr. (Lou) Cipher says:<br>' . $answer;
+    $display_result = 'Mr. (Lou) Cipher has encrypted your phrase, <br>';
+    $display_result .= '<strong>' . $phrase . '</strong><br> by shifting ' . $shift_value . ' to the ' . $direction . ' with the following result:<br>';
+    $display_result .= '<strong>' . $answer . '</strong>';
+    return $display_result;
 }
