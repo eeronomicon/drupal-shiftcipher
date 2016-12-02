@@ -30,6 +30,7 @@ function shiftcipher_form() {
         '#type' => 'textfield',
         '#description' => t('In which direction would you like to shift each letter (right or left)?'),
         '#required' => TRUE,
+        '#element_validate' => array('element_validate_direction'),
     );
     $form['phrase'] = array(
         '#title' => 'Phrase',
@@ -42,6 +43,12 @@ function shiftcipher_form() {
         '#value' => 'What Would Mr. (Lou) Cipher Say?',
     );
     return $form;
+}
+
+function element_validate_direction($element) {
+  if (!($element['#value'] == "left" || $element['#value'] == "right")) {
+        form_error($element, t('The only valid Direction choices are "left" and "right".'));
+  }
 }
 
 function shiftcipher_phrase($input_phrase, $shift, $direction) {
