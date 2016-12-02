@@ -36,7 +36,6 @@ function shiftcipher_form() {
         '#type' => 'textfield',
         '#description' => t('How many places would you like to shift each letter?'),
         '#attributes' => array('placeholder' => t('An integer greater than zero')),
-        '#default_value' => isset($_SESSION['shiftcipher_shift_value']) ? $_SESSION['shiftcipher_shift_value'] : '',
         '#required' => TRUE,
         '#element_validate' => array('element_validate_integer_positive'),
     );
@@ -44,7 +43,6 @@ function shiftcipher_form() {
         '#title' => 'Direction',
         '#type' => 'textfield',
         '#description' => t('In which direction would you like to shift each letter (right or left)?'),
-        '#default_value' => isset($_SESSION['shiftcipher_direction']) ? $_SESSION['shiftcipher_direction'] : '',
         '#attributes' => array('placeholder' => t('"Right" or "left" in all lowercase, without quotes')),
         '#required' => TRUE,
         '#element_validate' => array('element_validate_direction'),
@@ -90,6 +88,9 @@ function shiftdecipher_form() {
         '#attributes' => array('placeholder' => t('"Right" or "left" in all lowercase, without quotes')),
         '#required' => TRUE,
         '#element_validate' => array('element_validate_direction'),
+    );
+    $form['field_explanation'] = array(
+        '#markup' => '<p>Note: If you\'re seeing values in the Shift Value and Direction fields, that\'s because they\'re from a previous Encryption session! ;-)</p>',
     );
     $form['submit'] = array(
         '#type' => 'submit',
