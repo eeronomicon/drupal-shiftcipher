@@ -53,7 +53,7 @@ function element_validate_direction($element) {
 }
 
 function element_validate_phrase($element) {
-  if (!preg_match("/[a-zA-Z\s\p{P}]/", $element['#value'])) {
+  if (preg_match("/[0-9\\\\~@#$%^&\*()_+={}|<>\/\`]/", $element['#value'])) {
         form_error($element, t('Only letters, spaces, and punctuation are allowed in the phrase.'));
   }
 }
