@@ -3,3 +3,4 @@ description = Encrypts a phrase using the Shift Cipher method.
 package = Epicodus Examples
 core = 7.x
 files[] = shiftcipher.module
+stylesheets[all][] = css/shiftcipher.css
